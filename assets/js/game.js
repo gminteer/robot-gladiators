@@ -11,17 +11,32 @@ var playerMoney;
 var enemyHealth;
 var enemyAttack;
 
+var randomNumber = function(min, max) {
+    var value = Math.floor(Math.random() * (max - min + 1) + min);
+  
+    return value;
+  };
+
 var fight = function(enemyName) {
     // fight or skip?
-    var promptFight = 'blah';
+    promptFight = 'blah';
     while((promptFight[0] != 'F') && (promptFight[0] != 'S')) {
-        promptFight = window.prompt('Would you like to (F)IGHT or (S)KIP this battle? Enter "FIGHT"/"F" or "SKIP"/"S" to choose.').toUpperCase();
+        promptFight = window.prompt('Would you like to (F)IGHT or (S)KIP this battle? Enter "FIGHT"/"F" or "SKIP"/"S" to choose.');
+        if(promptFight) {
+            promptFight = promptFight.toUpperCase();
+        } else {
+            promptFight = 'blah';
+        }
     }
     switch(promptFight[0]) {
         case 'F':
             while(enemyHealth > 0 && playerHealth > 0) {
                 // Subract playerAttack from enemyHealth, updating enemyHealth w/ new value
-                enemyHealth -= playerAttack;
+                var damage = randomNumber(playerAttack - 3, playerAttack);
+                enemyHealth = Math.max(0, enemyHealth - damage);
+
+                // Console log
+                console.log(enemyName + ' attacked for ' + damage + ' dmg by ' + playerName + ', new health: ' + enemyHealth);
 
                 // has it lost all its health?
                 if(enemyHealth <= 0) {
@@ -31,14 +46,12 @@ var fight = function(enemyName) {
                     window.alert(enemyName + ' has ' + enemyHealth + ' HP left.');
                 }
 
-                // Console log
-                console.log(enemyName + ' attacked by ' + playerName + ', new health: ' + enemyHealth);
-
                 // The enemy robot swings back
-                playerHealth -= enemyAttack;
+                damage = randomNumber(enemyAttack - 3, enemyAttack);
+                playerHealth = Math.max(0, playerHealth - damage);
 
                 // More logging
-                console.log(playerName + ' attacked by ' + enemyName + ', new health: ' + playerHealth);
+                console.log(playerName + ' attacked for ' + damage + ' dmg by ' + enemyName + ', new health: ' + playerHealth);
 
                 // has it lost all its health?
                 if(playerHealth <= 0) {
@@ -51,9 +64,9 @@ var fight = function(enemyName) {
             break;
         case 'S':
             var confirmSkip = window.confirm('Are you sure you\'d like to skip the fight?');
-            if(confirmSkip && (playerMoney >= 2)) {
+            if(confirmSkip && (playerMoney >= 10)) {
                 window.alert(playerName + ' has skipped this fight for $2.');
-                playerMoney -= 2;
+                playerMoney = Math.max(0, playerMoney - 10);
                 console.log('playerMoney: ' + playerMoney);
             } else if(playerMoney < 2) {
                 window.alert('Not enough cash!');
@@ -68,7 +81,12 @@ var fight = function(enemyName) {
 var shop = function () {
     var promptShop = 'blah';
     while(true) {
-        promptShop = window.prompt('Cash left: ' + playerMoney + '. Would you like to (R)EFILL your health, (U)PGRADE your attack, or (L)EAVE the shop?').toUpperCase();
+        promptShop = window.prompt('Cash left: ' + playerMoney + '. Would you like to (R)EFILL your health, (U)PGRADE your attack, or (L)EAVE the shop?');
+        if(promptShop) {
+            promptShop = promptShop.toUpperCase();
+        } else {
+            promptShop = 'blah';
+        }
         switch(promptShop[0]) {
             case 'R': //refill
                 if((playerMoney >= 7) && (playerHealth < 100)) {
@@ -116,7 +134,7 @@ var startGame = function() {
     playerMoney = 10;
     //enemyData
     var enemyNames = ["Roborto", "Amy Android", "Robo Trumble"];
-    enemyHealth = 50;
+    enemyHealth = randomNumber(40, 60);
     enemyAttack = 12;
     //fight the enemies
     for(var i = 0; i < enemyNames.length; i++) {

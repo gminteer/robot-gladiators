@@ -17,48 +17,51 @@ var fight = function(enemyName) {
     while((promptFight[0] != 'F') && (promptFight[0] != 'S')) {
         promptFight = window.prompt('Would you like to (F)IGHT or (S)KIP this battle? Enter "FIGHT"/"F" or "SKIP"/"S" to choose.').toUpperCase();
     }
-    if(promptFight[0] == 'F') {
-        while(enemyHealth > 0 && playerHealth > 0) {
-            // Subract playerAttack from enemyHealth, updating enemyHealth w/ new value
-            enemyHealth -= playerAttack;
+    switch(promptFight[0]) {
+        case 'F':
+            while(enemyHealth > 0 && playerHealth > 0) {
+                // Subract playerAttack from enemyHealth, updating enemyHealth w/ new value
+                enemyHealth -= playerAttack;
 
-            // has it lost all its health?
-            if(enemyHealth <= 0) {
-                window.alert(enemyName + ' has been defeated!');
-                break;
-            } else {
-                window.alert(enemyName + ' has ' + enemyHealth + ' HP left.');
+                // has it lost all its health?
+                if(enemyHealth <= 0) {
+                    window.alert(enemyName + ' has been defeated!');
+                    break;
+                } else {
+                    window.alert(enemyName + ' has ' + enemyHealth + ' HP left.');
+                }
+
+                // Console log
+                console.log(enemyName + ' attacked by ' + playerName + ', new health: ' + enemyHealth);
+
+                // The enemy robot swings back
+                playerHealth -= enemyAttack;
+
+                // More logging
+                console.log(playerName + ' attacked by ' + enemyName + ', new health: ' + playerHealth);
+
+                // has it lost all its health?
+                if(playerHealth <= 0) {
+                    window.alert(playerName + ' has been defeated!');
+                    break;
+                } else {
+                    window.alert(playerName + ' has ' + playerHealth + ' HP left.');
+                }
             }
-
-            // Console log
-            console.log(enemyName + ' attacked by ' + playerName + ', new health: ' + enemyHealth);
-
-            // The enemy robot swings back
-            playerHealth -= enemyAttack;
-
-            // More logging
-            console.log(playerName + ' attacked by ' + enemyName + ', new health: ' + playerHealth);
-
-            // has it lost all its health?
-            if(playerHealth <= 0) {
-                window.alert(playerName + ' has been defeated!');
-                break;
+            break;
+        case 'S':
+            var confirmSkip = window.confirm('Are you sure you\'d like to skip the fight?');
+            if(confirmSkip && (playerMoney >= 2)) {
+                window.alert(playerName + ' has skipped this fight for $2.');
+                playerMoney -= 2;
+                console.log('playerMoney: ' + playerMoney);
+            } else if(playerMoney < 2) {
+                window.alert('Not enough cash!');
+                fight(enemyName);
             } else {
-                window.alert(playerName + ' has ' + playerHealth + ' HP left.');
+                fight(enemyName); // I wonder how many times you'd have to pick "skip" then "no" before we get a stack overflow...
             }
-        }
-    } else if(promptFight[0] == 'S') {
-        var confirmSkip = window.confirm('Are you sure you\'d like to skip the fight?');
-        if(confirmSkip && (playerMoney >= 2)) {
-            window.alert(playerName + ' has skipped this fight for $2.');
-            playerMoney -= 2;
-            console.log('playerMoney: ' + playerMoney);
-        } else if(playerMoney < 2) {
-            window.alert('Not enough cash!');
-            fight(enemyName);
-        } else {
-            fight(enemyName); // I wonder how many times you'd have to pick "skip" then "no" before we get a stack overflow...
-        }
+            break;
     }
 };
 
@@ -66,30 +69,33 @@ var shop = function () {
     var promptShop = 'blah';
     while(true) {
         promptShop = window.prompt('Cash left: ' + playerMoney + '. Would you like to (R)EFILL your health, (U)PGRADE your attack, or (L)EAVE the shop?').toUpperCase();
-        console.info(promptShop, promptShop[0]);
-        if(promptShop[0] == 'R') { //refill
-            if((playerMoney >= 2) && (playerHealth < 100)) {
-                playerMoney -= 2;
-                playerHealth = 100;
-            } else if(playerMoney < 2) {
-                window.alert('Not enough cash!');
-            } else if(playerHealth >= 100) {
-                window.alert('Already at max health!');
-            }
-        } else if(promptShop[0] == 'U') { //upgrade
-            if(playerMoney >= 2) {
-                playerMoney -=2;
-                playerAttack += 10;
-                window.alert('Attack power now: ' + playerAttack);
-            } else {
-                window.alert('Not enough cash!');
-            }
-        } else if(promptShop[0] == 'L') { //leave
-            if(window.confirm('Are you sure you want to leave?')) {
+        switch(promptShop[0]) {
+            case 'R': //refill
+                if((playerMoney >= 7) && (playerHealth < 100)) {
+                    playerMoney -= 7;
+                    playerHealth = Math.max(playerHealth + 20, 100);
+                } else if(playerMoney < 2) {
+                    window.alert('Not enough cash!');
+                } else if(playerHealth >= 100) {
+                    window.alert('Already at max health!');
+                }
+                break;
+            case 'U': //upgrade
+                if(playerMoney >= 7) {
+                    playerMoney -=7;
+                    playerAttack += 6;
+                    window.alert('Attack power now: ' + playerAttack);
+                } else {
+                    window.alert('Not enough cash!');
+                }
+                break;
+            case 'L': //leave
+                if(window.confirm('Are you sure you want to leave?')) {
+                    break;
+                }
                 break;
             }
         }
-    }
 };
 
 var endGame = function() {
@@ -123,7 +129,7 @@ var startGame = function() {
         var pickedEnemyName = enemyNames[i];
         enemyHealth = 50;
         fight(pickedEnemyName);
-        if(i < (enemyNames.length - 1)) {
+        if(playerHealth > 0 && i < enemyNames.length - 1) {
             if(window.confirm('Visit shop?')) {
                 shop();
             }
